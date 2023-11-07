@@ -1,0 +1,103 @@
+Future showOptions() async {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            child: const Text('Photo Gallery'),
+            onPressed: () async {
+              // close the options modal
+              Navigator.of(context).pop();
+              // get image from gallery
+              XFile? temp = await getImageFromGallery();
+              // if (temp != null) {
+              //   await storeFireBase(temp);
+              // }
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: const Text('Camera'),
+            onPressed: () async {
+              // close the options modal
+              Navigator.of(context).pop();
+              // get image from camera
+              XFile? temp = await getImageFromCamera() as XFile?;
+              // if (temp != null) {
+              //   await storeFireBase(temp);
+              // }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+   Future getImageFromCamera() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      if (pickedFile != null) {
+        imageFile = XFile(pickedFile.path);
+      }
+    });
+    return imageFile;
+  }
+
+    //this for when the user uploads a photo from their phone gallery
+  Future getImageFromGallery() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        imageFile = XFile(pickedFile.path);
+      }
+    });
+
+    return imageFile;
+
+  }
+
+    //this is the like button
+  _like(var post) {
+    final favs = Provider.of<FavoritesProvider>(context, listen: false);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: FavoriteButton(
+        iconColor: Colors.pinkAccent.shade400,
+        iconSize: 35.5,
+        isFavorite: post.posts.isFavorite,
+        valueChanged: (fav) {
+          post.posts.isFavorite = fav;
+          if (fav) {
+            post.posts.canAdd = false;
+          }
+          favs.addFav(post);
+          print(favs.recipes.length);
+        },
+      ),
+    );
+  }
+
+    //This is the author of the recipe
+  _postAuthor(var post) {
+    return Row(
+      children: [
+        const CircleAvatar(
+          radius: 20,
+          backgroundImage: NetworkImage("https://picsum.photos/200"),
+        ),
+        const SizedBox(
+          width: 10,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              post.poster,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
