@@ -101,3 +101,12 @@ Future showOptions() async {
       ],
     );
   }
+
+List<Map<String, dynamic>> jsonList = provider.recipes
+                              .map((item) => item.posts.toJson())
+                              .toList();
+                          var authUser = auth.currentUser;
+                          db
+                              .collection('users')
+                              .doc(authUser!.uid)
+                              .update({'favorites': jsonList});

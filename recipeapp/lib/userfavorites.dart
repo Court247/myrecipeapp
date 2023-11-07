@@ -1,15 +1,10 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:favorite_button/favorite_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recipeapp/postprovider.dart';
 
-import 'Recipe.dart';
 import 'favoriteProvider.dart';
-import 'post.dart';
 
 //THis is the user favorites class
 class UserFavorites extends StatelessWidget {
@@ -35,22 +30,11 @@ class UserFavoritesPage extends StatefulWidget {
 }
 
 class _UserFavoritesPageState extends State<UserFavoritesPage> {
-  late final db;
-  late final auth;
-  late final provider;
-  late final posts;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    db = Provider.of<FirebaseFirestore>(context, listen: false);
-    auth = Provider.of<FirebaseAuth>(context, listen: false);
-    provider = Provider.of<FavoritesProvider>(context, listen: false);
-    posts = Provider.of<PostProvider>(context, listen: false);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final db = Provider.of<FirebaseFirestore>(context);
+    final provider = Provider.of<FavoritesProvider>(context, listen: false);
+    final auth = Provider.of<FirebaseAuth>(context, listen: false);
     return Scaffold(
       body: Column(
         children: [
@@ -67,12 +51,9 @@ class _UserFavoritesPageState extends State<UserFavoritesPage> {
                     //This is the list of recipes that the user has favorited
                     //via list tile
                     ListTile(
-                      leading: Image.network(
-                        post.posts.image!,
-                        fit: BoxFit.cover,
-                      ),
+                      leading: Image.network(post.posts.image!),
                       title: Text(post.posts.recipeName),
-                      subtitle: Text(post.poster!.displayName!),
+                      subtitle: Text(post.posts.description),
                       trailing: FavoriteButton(
                         iconColor: Colors.pinkAccent.shade400,
                         iconSize: 35.5,
@@ -80,7 +61,7 @@ class _UserFavoritesPageState extends State<UserFavoritesPage> {
                         valueChanged: (fav) {
                           post.posts.isFavorite = fav;
                           if (fav) {
-                            post.posts.canAdd = false;
+                            post.posts.canAdd = !fav;
                           }
                           provider.addFav(post);
                           List<Map<String, dynamic>> jsonList = provider.recipes
