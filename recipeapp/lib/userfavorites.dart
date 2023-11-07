@@ -1,8 +1,15 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:favorite_button/favorite_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:recipeapp/postprovider.dart';
 
+import 'Recipe.dart';
 import 'favoriteProvider.dart';
+import 'post.dart';
 
 //THis is the user favorites class
 class UserFavorites extends StatelessWidget {
@@ -28,9 +35,22 @@ class UserFavoritesPage extends StatefulWidget {
 }
 
 class _UserFavoritesPageState extends State<UserFavoritesPage> {
+  late final db;
+  late final auth;
+  late final provider;
+  late final posts;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    db = Provider.of<FirebaseFirestore>(context, listen: false);
+    auth = Provider.of<FirebaseAuth>(context, listen: false);
+    provider = Provider.of<FavoritesProvider>(context, listen: false);
+    posts = Provider.of<PostProvider>(context, listen: false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<FavoritesProvider>(context, listen: false);
     return Scaffold(
       body: Column(
         children: [
@@ -63,6 +83,14 @@ class _UserFavoritesPageState extends State<UserFavoritesPage> {
                             post.posts.canAdd = false;
                           }
                           provider.addFav(post);
+                          List<Map<String, dynamic>> jsonList = provider.recipes
+                              .map((item) => item.posts.toJson())
+                              .toList();
+                          var authUser = auth.currentUser;
+                          db
+                              .collection('users')
+                              .doc(authUser!.uid)
+                              .update({'favorites': jsonList});
                         },
                       ),
                       onTap: () {},
