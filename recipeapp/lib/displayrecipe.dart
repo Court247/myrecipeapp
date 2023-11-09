@@ -11,6 +11,10 @@ import 'post.dart';
 import 'postprovider.dart';
 import 'recipepage.dart';
 
+//1. create post collection
+//2. different display pages
+//3. remove post from the user collection
+
 //this is the page where the user can view the recipes as a timeline
 //might change it to a list time so you can just click and it'll show who uploaded it and the recipe
 

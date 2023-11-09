@@ -1,12 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'main.dart';
 
 class CreateAccount extends StatelessWidget {
@@ -34,28 +29,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final GlobalKey<FormFieldState<String>> _email = GlobalKey();
   final GlobalKey<FormFieldState<String>> _pass = GlobalKey();
   final GlobalKey<FormFieldState<String>> _user = GlobalKey();
-  String? _loc;
-  var locations;
-  String docLoc =
-      'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/files%2FCityStates.txt?alt=media&token=111b4e06-edd9-4ce3-bd40-3d1356d2ed4b';
-  @override
-  initState() {
-    super.initState();
-    locations = locationsList();
-  }
-
-  locationsList() async {
-    final storage = Provider.of<FirebaseStorage>(context, listen: false);
-    var newlist = [];
-    var response = await http.get(Uri.parse(docLoc));
-
-    var decode = json.decode(response.body);
-    for (int i = 0; i < decode.length; i++) {
-      newlist.add('${decode[i]['city']}, ${decode[i]['state']}');
-    }
-
-    return newlist;
-  }
+  final GlobalKey<FormFieldState<String>> _loc = GlobalKey();
 
   success() {
     return ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -86,7 +60,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           'email': _email.currentState!.value!,
           'favorites': [],
           'posts': [],
-          'location': _loc,
+          'location': _loc.currentState!.value!,
         });
         success();
       }
@@ -202,37 +176,21 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                 return null;
               },
             ),
-            FutureBuilder<List<String>>(
-              future: locations, // your Future<List<String>>
-              builder:
-                  (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                if (snapshot.hasData) {
-                  return DropdownButtonFormField<String>(
-                    value: _loc,
-                    icon: const Icon(Icons.arrow_downward),
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
-                      labelStyle: TextStyle(fontSize: 20),
-                      icon: Icon(Icons.location_on),
-                    ),
-                    items: snapshot.data!
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _loc = newValue;
-                      });
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return CircularProgressIndicator();
+            TextFormField(
+              key: _loc,
+              autocorrect: true,
+              decoration: const InputDecoration(
+                labelText: 'Location',
+                labelStyle: TextStyle(fontSize: 20),
+                hintText: 'ex. New York, NY',
+                hintStyle: TextStyle(fontSize: 20),
+                icon: Icon(Icons.location_on),
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Location is required';
                 }
+                return null;
               },
             ),
             const SizedBox(height: 20.0),

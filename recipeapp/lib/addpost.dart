@@ -129,7 +129,7 @@ class _PostPageState extends State<PostPage> {
   //This is to generate a random id for the recipe
   generateId() {
     var random = Random();
-    int randomNumber = random.nextInt(1000000);
+    int randomNumber = random.nextInt(1000000) + 200;
 
     return randomNumber;
   }
@@ -195,6 +195,7 @@ class _PostPageState extends State<PostPage> {
 
     db.collection(users).doc(authUser!.uid).update({'posts': jsonList});
     db.collection(r).doc(_postId.toString()).set(recipe.toJson());
+    db.collection('posts').doc(authUser!.uid).update({jsonList});
   }
 
   @override
@@ -216,8 +217,8 @@ class _PostPageState extends State<PostPage> {
           ),
         const SizedBox(height: 20),
         TextButton(
-          child: const Text('Select Image'),
           onPressed: selectFile,
+          child: const Text('Select Image'),
         ),
         //THis is the recipe name
         TextFormField(

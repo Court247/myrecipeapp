@@ -1,12 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:favorite_button/favorite_button.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 import 'favoriteProvider.dart';
 import 'postprovider.dart';
 import 'post.dart';
+import 'recipeDetails.dart';
 
-//This is the search page, unimplemented. I will do this later
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
 
@@ -29,51 +31,52 @@ class SearchPages extends StatefulWidget {
 }
 
 class _SearchPagesState extends State<SearchPages> {
-  final recipeSearch = TextEditingController();
-  List<Post> recipes = [];
-  List<Post> recipeList = [];
+  final TextEditingController minutesToCookController = TextEditingController();
+  final List<TextEditingController> ingredientPreferenceControllers =
+      List.generate(4, (_) => TextEditingController());
+  List recipeList = [];
+
   @override
-  initState() {
+  void initState() {
     super.initState();
-    final provider = Provider.of<PostProvider>(context, listen: false);
-    recipes = provider.posts;
-    print('recipes: ${recipes.length}');
   }
 
-  void searchRecipes(String query) {
-    //Searches and creates new list of games that matches the query String
-    //everytime the text field is changed
-    final suggestions = recipes.where((recipe) {
-      final recipeName = recipe.posts.recipeName.toLowerCase();
-      final input = query.toLowerCase();
+  void filterRecipes() {
+    final int minutesToCook = int.tryParse(minutesToCookController.text) ?? 0;
+    final List<String> ingredientPreferences = ingredientPreferenceControllers
+        .map((controller) => controller.text.toLowerCase())
+        .where((ingredient) => ingredient.isNotEmpty)
+        .toList();
+    print('USER MINUTES $minutesToCook');
+    print('USER PREFERENCES $ingredientPreferences');
 
-      //return the instance that == the query String
-      return recipeName.contains(input);
-    }).toList();
+    var dbF = Provider.of<FirebaseFirestore>(context, listen: false);
+    dbF.collection('recipes').get().then((querySnapshot) {
+      final suggestions = querySnapshot.docs.where((recipeDoc) {
+        final recipe = recipeDoc.data();
+        // print(recipe);for debugging
+        final recipeCookingTime = recipe['minutes'];
+        //print(recipeCookingTime);
+        final recipeIngredients = List<String>.from(recipe['ingredients'])
+            .map((ingredient) => ingredient.toLowerCase())
+            .toSet();
+        //print(recipeIngredients);
 
-    //sets the state back to gameList to refill the list of previous games
-    setState(() => recipeList = suggestions);
-  }
+        final meetsCookingTime = recipeCookingTime <= minutesToCook;
+        //print("Meets cooking time! $meetsCookingTime");
+        final hasMatchingIngredients = ingredientPreferences
+            .any((ingredient) => recipeIngredients.contains(ingredient));
+        print("has Matching ingredients $hasMatchingIngredients");
+        return meetsCookingTime && hasMatchingIngredients;
+      }).toList();
 
-  //this is the like button
-  _like(var post) {
-    final favs = Provider.of<FavoritesProvider>(context, listen: false);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: FavoriteButton(
-        iconColor: Colors.pinkAccent.shade400,
-        iconSize: 35.5,
-        isFavorite: post.posts.isFavorite,
-        valueChanged: (fav) {
-          post.posts.isFavorite = fav;
-          if (fav) {
-            post.posts.canAdd = false;
-          }
-          favs.addFav(post);
-          print(favs.recipes.length);
-        },
-      ),
-    );
+      print('Filtered Recipes: $suggestions');
+      //updates the list with the filtered recipes
+      setState(() {
+        recipeList = suggestions;
+        print(recipeList);
+      });
+    });
   }
 
   @override
@@ -85,17 +88,32 @@ class _SearchPagesState extends State<SearchPages> {
         children: [
           SizedBox(
             height: 35,
-            child: TextFormField(
-              controller: recipeSearch,
-              decoration: InputDecoration(
-                  prefix: const Icon(Icons.search),
-                  hintText: 'Recipe Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.black),
-                  )),
-              onChanged: searchRecipes,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: minutesToCookController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Minutes to Cook',
+                    ),
+                  ),
+                ),
+                for (int i = 0; i < 1; i++)
+                  Expanded(
+                    child: TextFormField(
+                      controller: ingredientPreferenceControllers[i],
+                      decoration: InputDecoration(
+                        labelText: 'Ingredient Preference ${i + 1}',
+                      ),
+                    ),
+                  ),
+              ],
             ),
+          ),
+          ElevatedButton(
+            onPressed: filterRecipes,
+            child: Text('Filter Recipes'),
           ),
           Expanded(
             child: ListView.builder(
@@ -105,12 +123,20 @@ class _SearchPagesState extends State<SearchPages> {
                 final r = recipeList[index];
                 return ListTile(
                   leading: Image.network(
-                    r.posts.image!,
+                    r['image'],
                     fit: BoxFit.cover,
                   ),
-                  title: Text(r.posts.recipeName),
-                  trailing: _like(r),
-                  onTap: () {},
+                  title: Text(r['recipeName']),
+                  //trailing: _like(r),
+                  onTap: () {
+                    // Navigate to the Recipe Details screen when tapped
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => recipeDetails(r.data()),
+                      ),
+                    );
+                  },
                 );
               },
             ),
