@@ -9,6 +9,7 @@ import 'favoriteProvider.dart';
 
 import 'post.dart';
 import 'postprovider.dart';
+import 'recipepage.dart';
 
 //this is the page where the user can view the recipes as a timeline
 //might change it to a list time so you can just click and it'll show who uploaded it and the recipe
@@ -106,6 +107,15 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
               title: Text(post.posts.recipeName),
               subtitle: Text(post.poster!.displayName!),
               trailing: _like(post),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ShowRecipe(
+                            post: post,
+                          )),
+                );
+              },
             );
           },
         )),

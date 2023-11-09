@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'favoriteProvider.dart';
+import 'recipepage.dart';
 
 //THis is the user favorites class
 class UserFavorites extends StatelessWidget {
@@ -74,7 +75,13 @@ class _UserFavoritesPageState extends State<UserFavoritesPage> {
                               .update({'favorites': jsonList});
                         },
                       ),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ShowRecipe(post: post)),
+                        );
+                      },
                     ),
                   ],
                 ),

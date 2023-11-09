@@ -105,7 +105,6 @@ class _PostPageState extends State<PostPage> {
     final post = Provider.of<PostProvider>(context, listen: false);
     final storage = Provider.of<FirebaseStorage>(context, listen: false);
     final path = 'images/${_recipeName.currentState!.value!}.png';
-    //File x = File(ifnull);
     File? file = imageFile != null ? File(imageFile!.path!) : null;
     if (file != null) {
       final ref = storage.ref().child(path);
