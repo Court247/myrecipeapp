@@ -13,7 +13,9 @@ class PostProvider extends ChangeNotifier {
   //This is the method that adds the post to the list of posts
   void addPost(Post post) {
     //calls method to check if the character is a favorite
-    _posts.add(post);
+
+    _posts.insert(0, post);
+
     notifyListeners();
   }
 
