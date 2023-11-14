@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:recipeapp/createaccount.dart';
 
+import 'createaccount.dart';
 import 'favoriteProvider.dart';
 import 'optionpage.dart';
 import 'postprovider.dart';
+import 'ratingprovider.dart';
 
 //This main page where the LOGIN is going to take place
 Future<void> main() async {
@@ -48,7 +49,9 @@ class Login extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (context) => FavoritesProvider()),
         ChangeNotifierProvider(create: (context) => PostProvider()),
-        Provider<FirebaseStorage>(create: (context) => FirebaseStorage.instance)
+        Provider<FirebaseStorage>(
+            create: (context) => FirebaseStorage.instance),
+        ChangeNotifierProvider(create: (context) => RatingProvider()),
       ],
       child: MaterialApp(
         theme: ThemeData(

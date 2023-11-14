@@ -6,6 +6,7 @@ import 'package:favorite_button/favorite_button.dart';
 import 'package:provider/provider.dart';
 import 'favoriteProvider.dart';
 import 'post.dart';
+import 'ratingprovider.dart';
 
 //this is the page where the user can view the recipes as a timeline
 //might change it to a list time so you can just click and it'll show who uploaded it and the recipe
@@ -117,6 +118,7 @@ class _ShowRecipeState extends State<ShowRecipePage> {
 
   @override
   Widget build(BuildContext context) {
+    final rating = Provider.of<RatingProvider>(context);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -127,6 +129,18 @@ class _ShowRecipeState extends State<ShowRecipePage> {
           Image.network(post.posts.image ?? ifnull, fit: BoxFit.cover),
           const SizedBox(
             height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStatePropertyAll(Colors.redAccent.shade400)),
+                onPressed: () {},
+                child: const Icon(Icons.thumb_up),
+              ),
+            ],
           ),
           Text(post.posts.description, style: const TextStyle(fontSize: 18)),
           const Row(

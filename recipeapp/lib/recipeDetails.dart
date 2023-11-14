@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class recipeDetails extends StatelessWidget {
+class RecipeDetails extends StatelessWidget {
   final Map<String, dynamic> recipe;
 
-  recipeDetails(this.recipe);
+  const RecipeDetails(this.recipe, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,12 +12,12 @@ class recipeDetails extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recipe Details'),
+        title: const Text('Recipe Details'),
       ),
       body: Center(
         child: Column(
           children: [
-            Text(recipe['recipeName'], style: TextStyle(fontSize: 50)),
+            Text(recipe['recipeName'], style: const TextStyle(fontSize: 50)),
             Image.network(
               recipe['image'],
               fit: BoxFit.cover,
@@ -30,7 +30,7 @@ class recipeDetails extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Ingredients:',
+                      const Text('Ingredients:',
                           style: TextStyle(
                               fontSize: 30, fontWeight: FontWeight.bold)),
                       for (var ingredient in ingredients) Text(ingredient),
@@ -42,7 +42,7 @@ class recipeDetails extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Steps:',
+                      const Text('Steps:',
                           style: TextStyle(
                               fontSize: 30, fontWeight: FontWeight.bold)),
                       for (var step in steps) Text(step),
