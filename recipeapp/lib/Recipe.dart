@@ -9,9 +9,10 @@ class Recipe {
   List<String> tags;
   String description;
   String? image;
-  bool? isFavorite;
-  bool? canAdd;
-  List<String>? reviews = [];
+  bool? isFavorite = false;
+  bool? canAdd = true;
+  bool? isLiked = false;
+  bool? isDisliked = false;
   String? location;
   Recipe(
       {required this.recipeName,
@@ -25,7 +26,9 @@ class Recipe {
       this.image,
       this.isFavorite,
       this.canAdd,
-      this.location});
+      this.location,
+      this.isLiked,
+      this.isDisliked});
 
   //this is the method that converts the json data to a recipe object
   factory Recipe.fromJson(Map<String, dynamic> json) {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:favorite_button/favorite_button.dart';
 
 import 'package:provider/provider.dart';
-import 'Recipe.dart';
 import 'addpost.dart';
 import 'favoriteProvider.dart';
 

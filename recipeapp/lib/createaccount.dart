@@ -51,7 +51,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
       User? user = userCredential.user;
       user!.updateDisplayName(_user.currentState!.value!);
 
-      if (user != null) {
+      if (userCredential.additionalUserInfo!.isNewUser) {
         print('Successfully created an account!');
         print('User ID: ${user.uid}');
         print('Email: ${user.email}');
@@ -63,7 +63,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         });
         success();
       }
-    } on FirebaseAuthException catch (e) {
+        } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         message = 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -13,7 +14,6 @@ class OptionPage extends StatelessWidget {
   const OptionPage({super.key});
 
   //this will be where the user can "sign out"
-  options() {}
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<FirebaseAuth>(context);
@@ -117,6 +117,19 @@ class _PageState extends State<Pages> {
       );
     });
   }
+
+  // update() {
+  //   final db = Provider.of<FirebaseFirestore>(context, listen: false);
+
+  //   for (int i = 0; i < 200; i++) {
+  //     db.collection('recipes').doc(i.toString()).update({
+  //       'isFavorite': false,
+  //       'canAdd': true,
+  //       'isLiked': false,
+  //       'isDisliked': false,
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
