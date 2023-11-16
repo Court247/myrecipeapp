@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:favorite_button/favorite_button.dart';
+import 'package:like_button/like_button.dart';
 
 import 'package:provider/provider.dart';
 import 'favoriteProvider.dart';
@@ -118,7 +119,6 @@ class _ShowRecipeState extends State<ShowRecipePage> {
 
   @override
   Widget build(BuildContext context) {
-    final rating = Provider.of<RatingProvider>(context);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -133,14 +133,52 @@ class _ShowRecipeState extends State<ShowRecipePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStatePropertyAll(Colors.redAccent.shade400)),
-                onPressed: () {},
-                child: const Icon(Icons.thumb_up),
+              LikeButton(
+                size: 30.0,
+                circleColor: const CircleColor(
+                    start: Color.fromARGB(255, 251, 110, 110),
+                    end: Color.fromARGB(255, 255, 28, 2)),
+                bubblesColor: const BubblesColor(
+                  dotPrimaryColor: Color.fromARGB(255, 252, 3, 3),
+                  dotSecondaryColor: Color.fromARGB(255, 255, 116, 116),
+                ),
+                likeBuilder: (bool isLiked) {
+                  return Icon(
+                    Icons.thumb_up,
+                    color: isLiked ? Colors.red : Colors.grey,
+                    size: 30.0,
+                  );
+                },
+                likeCount: post.isLiked,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              LikeButton(
+                size: 30.0,
+                circleColor: const CircleColor(
+                    start: Color.fromARGB(255, 251, 110, 110),
+                    end: Color.fromARGB(255, 255, 28, 2)),
+                bubblesColor: const BubblesColor(
+                  dotPrimaryColor: Color.fromARGB(255, 252, 3, 3),
+                  dotSecondaryColor: Color.fromARGB(255, 255, 116, 116),
+                ),
+                likeBuilder: (bool isLiked) {
+                  return Icon(
+                    Icons.thumb_down,
+                    color: isLiked ? Colors.red : Colors.grey,
+                    size: 30.0,
+                  );
+                },
+                likeCount: post.isLiked,
+              ),
+              const SizedBox(
+                width: 10,
               ),
             ],
+          ),
+          const SizedBox(
+            height: 10,
           ),
           Text(post.posts.description, style: const TextStyle(fontSize: 18)),
           const Row(

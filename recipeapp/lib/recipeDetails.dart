@@ -22,6 +22,7 @@ class RecipeDetails extends StatelessWidget {
               recipe['image'],
               fit: BoxFit.cover,
             ),
+            
             // Display ingredients and steps side by side
             Row(
               children: [

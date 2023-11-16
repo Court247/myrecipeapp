@@ -65,35 +65,73 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   //This is just to try to get the data from the database so that we can simulate a search
   //and adding more recipes to an already populated list. Haven't figured it out
   //or finished it yet.
-  extraData() async {
-    setState(() {
-      posts = provider.posts;
-    });
+  // extraData() async {
+  //   setState(() {
+  //     posts = provider.posts;
+  //   });
+  //   var querySnapshot =
+  //       await db.collection('users').doc(auth.currentUser!.uid).get();
+  //   var uData = querySnapshot.data()!;
+  //   db.collection('recipes').get().then((querySnapshot) {
+  //     querySnapshot.docs.forEach((result) {
+  //       recipe = result.data();
+  //       setState(() {
+  //         data = Post.fromJson2(auth.currentUser, recipe);
+  //         if (!provider.posts
+  //             .any((post) => post.posts.recipeName == data.posts.recipeName)) {
+  //           provider.addPost(data);
+  //         }
+
+  //         recipes = provider.posts
+  //             .where((recipe) =>
+  //                 recipe.posts.location == uData['location'] ||
+  //                 recipe.posts.location == null)
+  //             .toList();
+  //       });
+
+  //       recipeList = recipes;
+  //       print('recipeList: ${recipeList.length}');
+  //       print('posts: ${posts.length}');
+  //     });
+  //   });
+  // }
+  getUserData() async {
     var querySnapshot =
         await db.collection('users').doc(auth.currentUser!.uid).get();
     var uData = querySnapshot.data()!;
-    db.collection('recipes').get().then((querySnapshot) {
-      querySnapshot.docs.forEach((result) {
-        recipe = result.data();
-        setState(() {
-          data = Post.fromJson2(auth.currentUser, recipe);
-          if (!provider.posts
-              .any((post) => post.posts.recipeName == data.posts.recipeName)) {
-            provider.addPost(data);
-          }
+    print(uData);
+    return uData;
+  }
 
-          recipes = provider.posts
-              .where((recipe) =>
-                  recipe.posts.location == uData['location'] ||
-                  recipe.posts.location == null)
-              .toList();
-        });
+  extraData() async {
+    var uData = await getUserData();
+    for (int i = 0; i < 10; i++) {
+      db
+          .collection('recipes')
+          .doc(i.toString())
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          recipe = documentSnapshot.data();
+          print(recipe['recipeName']);
+          setState(() {
+            data = Post.fromJson2(auth.currentUser, recipe);
+            if (!provider.posts.any(
+                (post) => post.posts.recipeName == data.posts.recipeName)) {
+              provider.addPost(data);
+            }
 
-        recipeList = recipes;
-        print('recipeList: ${recipeList.length}');
-        print('posts: ${posts.length}');
+            recipes = provider.posts
+                .where((recipe) =>
+                    recipe.posts.location == uData['location'] ||
+                    recipe.posts.location == null)
+                .toList();
+          });
+        } else {
+          print('Document does not exist on the database');
+        }
       });
-    });
+    }
   }
 
 //this is the like button
