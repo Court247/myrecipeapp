@@ -60,10 +60,11 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           'email': _email.currentState!.value!,
           'favorites': [],
           'location': _loc.currentState!.value!,
+          'uid': user.uid,
         });
         success();
       }
-        } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         message = 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {

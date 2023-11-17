@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:provider/provider.dart';
-import 'package:recipeapp/displayRecipe.dart';
-import 'package:recipeapp/userfavorites.dart';
+import 'displayRecipe.dart';
+import 'userfavorites.dart';
+import 'userProfileScreen.dart';
 
 import 'main.dart';
 import 'search.dart';
@@ -14,6 +14,7 @@ class OptionPage extends StatelessWidget {
   const OptionPage({super.key});
 
   //this will be where the user can "sign out"
+  options() {}
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<FirebaseAuth>(context);
@@ -31,6 +32,24 @@ class OptionPage extends StatelessWidget {
                       'Menu',
                       style: TextStyle(fontSize: 30, color: Colors.white),
                     )),
+                ListTile(
+                  leading: const Icon(
+                    Icons.account_circle,
+                    color: Colors.red,
+                    opticalSize: 10.5,
+                  ),
+                  title: const Text(
+                    'My Profile',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserProfileScreen()),
+                    );
+                  },
+                ),
                 ListTile(
                   leading: const Icon(
                     Icons.exit_to_app_sharp,
@@ -117,19 +136,6 @@ class _PageState extends State<Pages> {
       );
     });
   }
-
-  // update() {
-  //   final db = Provider.of<FirebaseFirestore>(context, listen: false);
-
-  //   for (int i = 0; i < 200; i++) {
-  //     db.collection('recipes').doc(i.toString()).update({
-  //       'isFavorite': false,
-  //       'canAdd': true,
-  //       'isLiked': false,
-  //       'isDisliked': false,
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
