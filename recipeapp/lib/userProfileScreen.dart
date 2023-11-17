@@ -8,6 +8,8 @@ class UserProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Provider.of<FirebaseAuth>(context);
     final User? user = auth.currentUser;
+    final String defaultPhoto =
+        'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2Fno-user-image.gif?alt=media&token=25a43660-490e-438d-b1c7-ad6f8c122f7d';
 
     return Scaffold(
       appBar: AppBar(
@@ -18,7 +20,7 @@ class UserProfileScreen extends StatelessWidget {
         builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             //loading indicator while data gets displayed
-            return CircularProgressIndicator();
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else {
@@ -32,10 +34,11 @@ class UserProfileScreen extends StatelessWidget {
                     radius: 60,
                     //we could add an image to the user profile
                     //so this screen looks better
-                    //backgroundImage: NetworkImage(userData['profileImage'] ?? ''),
+                    backgroundImage:
+                        NetworkImage(userData['profileImage'] ?? defaultPhoto),
                   ),
-                  SizedBox(height: 20),
-                  Text('Email: ${user?.email}'),
+                  const SizedBox(height: 20),
+                  Text('Email: ${user.email}'),
                   Text('Location: ${userData['location']}'),
                   Text('Username: ${userData['username']}'),
                 ],
