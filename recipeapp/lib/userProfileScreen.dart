@@ -8,7 +8,7 @@ class UserProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final auth = Provider.of<FirebaseAuth>(context);
     final User? user = auth.currentUser;
-    final String defaultPhoto =
+    const String defaultPhoto =
         'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2Fno-user-image.gif?alt=media&token=25a43660-490e-438d-b1c7-ad6f8c122f7d';
 
     return Scaffold(
