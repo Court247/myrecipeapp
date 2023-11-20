@@ -61,24 +61,11 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     extraData();
   }
 
-  //this is to delete the fields that are not needed anymore in the firestore database
-  // deleteField() async {
-  //   for (int i = 0; i < 201; i++) {
-  //     db.collection('recipes').doc(i.toString()).update({
-  //       'isDisliked': FieldValue.delete(),
-  //       'isLiked': FieldValue.delete(),
-  //       'isFavorite': FieldValue.delete(),
-  //       'canAdd': FieldValue.delete()
-  //     });
-  //   }
-  // }
-
-  //gets the user data from the database
   getUserData() async {
     var querySnapshot =
         await db.collection('users').doc(auth.currentUser!.uid).get();
     var uData = querySnapshot.data()!;
-    //print(uData);
+    print(uData);
     return uData;
   }
 
@@ -108,18 +95,11 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                 .toList();
 
             recipeList = recipes;
-            addToPostCollection();
           });
         } else {
           print('Document does not exist on the database');
         }
       });
-    }
-  }
-
-  addToPostCollection() {
-    for (int i = 0; i < recipeList.length; i++) {
-      db.collection('posts').doc(i.toString()).set(recipeList[i].toJson());
     }
   }
 
