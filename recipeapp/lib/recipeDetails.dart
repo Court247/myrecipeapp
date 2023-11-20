@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 
-class RecipeDetails extends StatelessWidget {
+class recipeDetails extends StatelessWidget {
   final Map<String, dynamic> recipe;
 
-  const RecipeDetails(this.recipe, {super.key});
+  recipeDetails(this.recipe);
 
   @override
   Widget build(BuildContext context) {
     final List<dynamic> ingredients = recipe['ingredients'];
     final List<dynamic> steps = recipe['steps'];
+    String ifnull =
+        'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2F1000_F_251955356_FAQH0U1y1TZw3ZcdPGybwUkH90a3VAhb.jpg?alt=media&token=091b00f6-a4a8-4a4a-b66f-60e8978fb471&_gl=1*1dfhnga*_ga*MTM5MTUxODI4My4xNjk4NTE4MjUw*_ga_CW55HF8NVT*MTY5OTM1MTA4OS40MS4xLjE2OTkzNTQ2MzMuMTAuMC4w';
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recipe Details'),
+        title: Text(
+          recipe['recipeName']?.toString()?.toUpperCase()?.trim() ?? ' ',
+        ),
       ),
+<<<<<<< HEAD
       body: Center(
         child: Column(
           children: [
@@ -30,29 +35,57 @@ class RecipeDetails extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+=======
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              Image.network(
+                recipe['image'] ?? ifnull,
+                fit: BoxFit.cover,
+              ),
+              // Display recipe description, ingredients, and steps
+              Column(
+                children: [
+                  // Recipe Description
+                  Text(
+                    '',
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    recipe['description'] ?? 'No description available',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  // Ingredients
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+>>>>>>> main
                     children: [
-                      const Text('Ingredients:',
+                      Text('Ingredients:',
                           style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold)),
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          )),
                       for (var ingredient in ingredients) Text(ingredient),
                     ],
                   ),
-                ),
-                // Steps on the right
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  // Steps
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Text('Steps:',
+                      Text('Steps:',
                           style: TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold)),
-                      for (var step in steps) Text(step),
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          )),
+                      for (var i = 0; i < steps.length; i++)
+                        Text('${i + 1}. ${steps[i]}'),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

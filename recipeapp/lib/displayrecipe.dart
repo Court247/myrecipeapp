@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:favorite_button/favorite_button.dart';
 
 import 'package:provider/provider.dart';
-import 'Recipe.dart';
 import 'addpost.dart';
 import 'favoriteProvider.dart';
 
@@ -62,47 +61,29 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     extraData();
   }
 
-  //This is just to try to get the data from the database so that we can simulate a search
-  //and adding more recipes to an already populated list. Haven't figured it out
-  //or finished it yet.
-  // extraData() async {
-  //   setState(() {
-  //     posts = provider.posts;
-  //   });
-  //   var querySnapshot =
-  //       await db.collection('users').doc(auth.currentUser!.uid).get();
-  //   var uData = querySnapshot.data()!;
-  //   db.collection('recipes').get().then((querySnapshot) {
-  //     querySnapshot.docs.forEach((result) {
-  //       recipe = result.data();
-  //       setState(() {
-  //         data = Post.fromJson2(auth.currentUser, recipe);
-  //         if (!provider.posts
-  //             .any((post) => post.posts.recipeName == data.posts.recipeName)) {
-  //           provider.addPost(data);
-  //         }
-
-  //         recipes = provider.posts
-  //             .where((recipe) =>
-  //                 recipe.posts.location == uData['location'] ||
-  //                 recipe.posts.location == null)
-  //             .toList();
-  //       });
-
-  //       recipeList = recipes;
-  //       print('recipeList: ${recipeList.length}');
-  //       print('posts: ${posts.length}');
+  //this is to delete the fields that are not needed anymore in the firestore database
+  // deleteField() async {
+  //   for (int i = 0; i < 201; i++) {
+  //     db.collection('recipes').doc(i.toString()).update({
+  //       'isDisliked': FieldValue.delete(),
+  //       'isLiked': FieldValue.delete(),
+  //       'isFavorite': FieldValue.delete(),
+  //       'canAdd': FieldValue.delete()
   //     });
-  //   });
+  //   }
   // }
+
+  //gets the user data from the database
   getUserData() async {
     var querySnapshot =
         await db.collection('users').doc(auth.currentUser!.uid).get();
     var uData = querySnapshot.data()!;
-    print(uData);
+    //print(uData);
     return uData;
   }
 
+  //gets the top 10 recipes from the database and adds it to the list
+  //If the recipe is already in the list it won't add it again
   extraData() async {
     var uData = await getUserData();
     for (int i = 0; i < 10; i++) {
@@ -113,7 +94,6 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
           recipe = documentSnapshot.data();
-          print(recipe['recipeName']);
           setState(() {
             data = Post.fromJson2(auth.currentUser, recipe);
             if (!provider.posts.any(
@@ -126,11 +106,20 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                     recipe.posts.location == uData['location'] ||
                     recipe.posts.location == null)
                 .toList();
+
+            recipeList = recipes;
+            addToPostCollection();
           });
         } else {
           print('Document does not exist on the database');
         }
       });
+    }
+  }
+
+  addToPostCollection() {
+    for (int i = 0; i < recipeList.length; i++) {
+      db.collection('posts').doc(i.toString()).set(recipeList[i].toJson());
     }
   }
 
