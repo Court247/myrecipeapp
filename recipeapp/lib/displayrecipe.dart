@@ -45,6 +45,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   late final provider;
   late final db;
   late final auth;
+  late var postData;
   var recipe;
   var data;
   String ifnull =
@@ -58,70 +59,53 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     db = Provider.of<FirebaseFirestore>(context, listen: false);
     auth = Provider.of<FirebaseAuth>(context, listen: false);
 
-    extraData();
+    checkForPosts();
   }
 
-  //this is to delete the fields that are not needed anymore in the firestore database
-  // deleteField() async {
-  //   for (int i = 0; i < 201; i++) {
-  //     db.collection('recipes').doc(i.toString()).update({
-  //       'isDisliked': FieldValue.delete(),
-  //       'isLiked': FieldValue.delete(),
-  //       'isFavorite': FieldValue.delete(),
-  //       'canAdd': FieldValue.delete()
-  //     });
-  //   }
-  // }
+  getData(String? postID) async {
+    var data = await getUserData(postID);
+    setState(() {
+      postData = data;
+    });
+  }
 
   //gets the user data from the database
-  getUserData() async {
-    var querySnapshot =
-        await db.collection('users').doc(auth.currentUser!.uid).get();
-    var uData = querySnapshot.data()!;
-    //print(uData);
-    return uData;
+  getUserData(String? postID) async {
+    try {
+      var querySnapshot = await db.collection('users').doc(postID).get();
+      var uData = querySnapshot.data()!;
+      //print(uData);
+      return uData;
+    } catch (e) {
+      print(e);
+    }
   }
 
-  //gets the top 10 recipes from the database and adds it to the list
-  //If the recipe is already in the list it won't add it again
-  extraData() async {
-    var uData = await getUserData();
-    for (int i = 0; i < 10; i++) {
-      db
-          .collection('recipes')
-          .doc(i.toString())
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          recipe = documentSnapshot.data();
-          setState(() {
-            data = Post.fromJson2(auth.currentUser, recipe);
-            if (!provider.posts.any(
-                (post) => post.posts.recipeName == data.posts.recipeName)) {
-              provider.addPost(data);
-            }
+  checkForPosts() {
+    db.collection('posts').get().then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        recipe = doc.data();
+        setState(() {
+          data = Post.fromJson(recipe);
+          //this is to check if the recipe is already in the list
+          if (!provider.posts
+              .any((post) => post.posts.recipeName == data.posts.recipeName)) {
+            provider.addPost(data);
+          }
 
-            recipes = provider.posts
-                .where((recipe) =>
-                    recipe.posts.location == uData['location'] ||
-                    recipe.posts.location == null)
-                .toList();
+          recipes = provider.posts;
 
-            recipeList = recipes;
-            addToPostCollection();
-          });
-        } else {
-          print('Document does not exist on the database');
-        }
+          recipeList = recipes;
+        });
       });
-    }
+    });
   }
 
   addToPostCollection() {
     for (int i = 0; i < recipeList.length; i++) {
       db
           .collection('posts')
-          .doc(i.toString())
+          .doc((i + 1).toString())
           .set(recipeList[i].toJson());
     }
   }
@@ -157,7 +141,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
 
   void searchRecipes(String query) {
     //Searches and creates new list of games that matches the query String
-    //everytime the text field is changed
+    //every time the text field is changed
     final suggestions = recipes.where((recipe) {
       final recipeName = recipe.posts.recipeName.toLowerCase();
       final input = query.toLowerCase();
@@ -168,6 +152,11 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
 
     //sets the state back to gameList to refill the list of previous games
     setState(() => recipeList = suggestions);
+  }
+
+  Future<DocumentSnapshot> fetchUserData(var userID) async {
+    var userDoc = await db.collection('users').doc(userID).get();
+    return userDoc;
   }
 
   @override
@@ -203,14 +192,28 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
           itemCount: recipeList.length,
           itemBuilder: (BuildContext context, int index) {
             var post = recipeList[index];
-            //this is the list of recipes
+            FutureBuilder<DocumentSnapshot>(
+              future: fetchUserData(post.posterID),
+              builder: (BuildContext context,
+                  AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  postData = snapshot.data!.data();
+                  return const Text('Done');
+                }
+              },
+            );
+
             return ListTile(
               leading: Image.network(
                 post.posts.image ?? ifnull,
                 fit: BoxFit.cover,
               ),
               title: Text(post.posts.recipeName),
-              subtitle: Text(post.poster!.displayName!),
+              subtitle: Text(postData['username']),
               trailing: _like(post),
               onTap: () {
                 Navigator.push(

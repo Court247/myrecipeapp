@@ -4,12 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'createaccount.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
+
 import 'favoriteProvider.dart';
 import 'optionpage.dart';
 import 'postprovider.dart';
-import 'ratingprovider.dart';
 
 //This main page where the LOGIN is going to take place
 Future<void> main() async {
@@ -49,9 +49,7 @@ class Login extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (context) => FavoritesProvider()),
         ChangeNotifierProvider(create: (context) => PostProvider()),
-        Provider<FirebaseStorage>(
-            create: (context) => FirebaseStorage.instance),
-        ChangeNotifierProvider(create: (context) => RatingProvider()),
+        Provider<FirebaseStorage>(create: (context) => FirebaseStorage.instance)
       ],
       child: MaterialApp(
         theme: ThemeData(
@@ -74,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormFieldState<String>> _user = GlobalKey();
   final GlobalKey<FormFieldState<String>> _pass = GlobalKey();
 
-  //This function validates the user input to make sure it's not null
+  //validates the user input to make sure it's not null
   submit() {
     final isValid = _user.currentState?.validate();
     final isValids = _pass.currentState?.validate();
@@ -86,20 +84,20 @@ class _LoginPageState extends State<LoginPage> {
     return true;
   }
 
-  //this function gets the values from the user input make sure it's correct
+  //gets the values from the user input make sure it's correct
   get values => {
         'Email': _user.currentState?.value,
         'Password': _pass.currentState?.value
       };
 
-  //this is the login function that checks if the user is in the database
+  //login function that checks if the user is in the database
   Future<bool?> login() async {
     //the auth and db variables are used to access the firebase authentication and firestore
     final auth = Provider.of<FirebaseAuth>(context, listen: false);
     final db = Provider.of<FirebaseFirestore>(context, listen: false);
     String message = '';
 
-    //this try catch block checks if the user is in the database and if not it will throw an error
+    //try catch block checks if the user is in the database and if not it will throw an error
     try {
       UserCredential userCredential = await auth.signInWithEmailAndPassword(
         email: _user.currentState!.value!,
@@ -150,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
         message = 'Invalid email or password.';
       }
 
-      //If the user is not in the database then it will display an error message
+      //if user is not in the database then it will display an error message
       //via snackbar
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(message),
@@ -165,101 +163,123 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/homepage_wallpaper.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Center(
               child: Container(
-                margin: const EdgeInsets.only(top: 100),
-                child: const Text('Flavor',
-                    style: TextStyle(fontSize: 50, color: Colors.red)),
-              ),
-            ),
-            const Center(
-              child: Text(
-                'Version: 0.0.1',
-                style: TextStyle(fontSize: 15, color: Colors.grey),
-              ),
-            ),
-            const Center(
-              child: Text(
-                'Login to your account',
-                style: TextStyle(
-                    fontSize: 35,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color:
+                      Color.fromRGBO(255, 255, 255, 0.8), // transparent white
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    DefaultTextStyle(
+                      style: const TextStyle(
+                        fontSize: 50.0,
+                        color: Colors.red,
+                      ),
+                      child: AnimatedTextKit(
+                        animatedTexts: [
+                          WavyAnimatedText('Flavor'),
+                        ],
+                        isRepeatingAnimation: true,
+                        onTap: () {},
+                      ),
+                    ),
+                    const SizedBox(height: 20.0),
+                    TextFormField(
+                      key: _user,
+                      decoration: const InputDecoration(
+                        hintText: 'Email',
+                        icon: Icon(Icons.email, color: Colors.black54),
+                        hintStyle: TextStyle(color: Colors.black54),
+                      ),
+                      style: TextStyle(color: Colors.black),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Email is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10.0),
+                    TextFormField(
+                      key: _pass,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        hintText: 'Password',
+                        icon: Icon(Icons.lock, color: Colors.black54),
+                        hintStyle: TextStyle(color: Colors.black54),
+                      ),
+                      style: TextStyle(color: Colors.black),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Password is required';
+                        }
+                        return null;
+                      },
+                    ),
 
-            //This is the form that the user will use to login
-            TextFormField(
-              key: _user,
-              decoration: const InputDecoration(
-                hintText: 'Email',
-                icon: Icon(Icons.email),
-              ),
-              validator: (value) {
-                print(values);
-                if (value!.isEmpty) {
-                  return 'Email is required';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              key: _pass,
-              obscureText: true,
-              decoration: const InputDecoration(
-                hintText: 'Password',
-                icon: Icon(Icons.lock),
-              ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Password is required';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 20.0),
-            //this is the login button
-            ElevatedButton(
-              style: ButtonStyle(
-                  shape: MaterialStateProperty.all(const StadiumBorder()),
-                  textStyle:
-                      MaterialStateProperty.all(const TextStyle(fontSize: 35)),
-                  fixedSize: MaterialStateProperty.all(const Size(150, 50))),
-              onPressed: () async {
-                if (submit() && await login.call() == true) {
-                  print(values);
-                  if (mounted) {
-                    //this will take the user to the option page
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const OptionPage()));
-                  }
-                }
-              },
-              child: const Text('Login'),
-            ),
-            const SizedBox(height: 20.0),
-            //This is the create account button
+                    const SizedBox(height: 20.0),
+                    //this is the login button
+                    ElevatedButton(
+                      style: ButtonStyle(
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          textStyle: MaterialStateProperty.all(
+                              const TextStyle(fontSize: 35)),
+                          fixedSize:
+                              MaterialStateProperty.all(const Size(150, 50))),
+                      onPressed: () async {
+                        if (submit() && await login.call() == true) {
+                          print(values);
+                          if (mounted) {
+                            //this will take the user to the option page
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const OptionPage()));
+                          }
+                        }
+                      },
+                      child: const Text('Login'),
+                    ),
+                    const SizedBox(height: 20.0),
+                    //This is the create account button
 
-            ElevatedButton(
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.grey),
-                  shape: MaterialStateProperty.all(const StadiumBorder()),
-                  fixedSize: MaterialStateProperty.all(const Size(150, 50))),
-              onPressed: () {
-                //This will take the user to the create account page
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const CreateAccount()));
-              },
-              child: const Text(
-                'Create Account',
-                style: TextStyle(color: Colors.black, fontSize: 17),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.grey),
+                          shape:
+                              MaterialStateProperty.all(const StadiumBorder()),
+                          fixedSize:
+                              MaterialStateProperty.all(const Size(150, 50))),
+                      onPressed: () {
+                        //takes the user to the create account page
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CreateAccount()));
+                      },
+                      child: const Text(
+                        'Create Account',
+                        style: TextStyle(color: Colors.black, fontSize: 17),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
