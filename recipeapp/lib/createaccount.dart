@@ -61,6 +61,7 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           'favorites': [],
           'location': _loc.currentState!.value!,
           'uid': user.uid,
+          'photoURL': '',
         });
         success();
       }

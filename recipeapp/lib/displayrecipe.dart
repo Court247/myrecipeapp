@@ -82,7 +82,12 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   }
 
   checkForPosts() {
-    db.collection('posts').get().then((QuerySnapshot querySnapshot) {
+    db
+        .collection('posts')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         recipe = doc.data();
         setState(() {
@@ -100,6 +105,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
       });
     });
   }
+
 
   addToPostCollection() {
     for (int i = 0; i < recipeList.length; i++) {
@@ -192,7 +198,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
           itemCount: recipeList.length,
           itemBuilder: (BuildContext context, int index) {
             var post = recipeList[index];
-            FutureBuilder<DocumentSnapshot>(
+            return FutureBuilder<DocumentSnapshot>(
               future: fetchUserData(post.posterID),
               builder: (BuildContext context,
                   AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -202,27 +208,27 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                   return Text('Error: ${snapshot.error}');
                 } else {
                   postData = snapshot.data!.data();
-                  return const Text('Done');
-                }
-              },
-            );
-
-            return ListTile(
-              leading: Image.network(
-                post.posts.image ?? ifnull,
-                fit: BoxFit.cover,
-              ),
-              title: Text(post.posts.recipeName),
-              subtitle: Text(postData['username']),
-              trailing: _like(post),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ShowRecipe(
+                  return ListTile(
+                    leading: Image.network(
+                      post.posts.image ?? ifnull,
+                      fit: BoxFit.cover,
+                    ),
+                    title: Text(post.posts.recipeName),
+                    subtitle: Text(postData['username']),
+                    trailing: _like(post),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ShowRecipe(
                             post: post,
-                          )),
-                );
+                            userData: postData,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
               },
             );
           },
