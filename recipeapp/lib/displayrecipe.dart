@@ -103,6 +103,15 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     return uData;
   }
 
+  addToPostCollection() {
+    for (int i = 0; i < recipeList.length; i++) {
+      db
+          .collection('posts')
+          .doc((i + 1).toString())
+          .set(recipeList[i].toJson());
+    }
+  }
+
   extraData() async {
     var uData = await getUserData();
     for (int i = 0; i < 10; i++) {
