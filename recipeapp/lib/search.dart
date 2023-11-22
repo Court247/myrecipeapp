@@ -1,12 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:favorite_button/favorite_button.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'favoriteProvider.dart';
-import 'postprovider.dart';
-import 'post.dart';
+
 import 'recipeDetails.dart';
 
 class SearchPage extends StatelessWidget {
@@ -35,7 +30,31 @@ class _SearchPagesState extends State<SearchPages> {
   final List<TextEditingController> ingredientPreferenceControllers =
       List.generate(4, (_) => TextEditingController());
   List recipeList = [];
+  String ifnull =
+      'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2F1000_F_251955356_FAQH0U1y1TZw3ZcdPGybwUkH90a3VAhb.jpg?alt=media&token=091b00f6-a4a8-4a4a-b66f-60e8978fb471&_gl=1*1dfhnga*_ga*MTM5MTUxODI4My4xNjk4NTE4MjUw*_ga_CW55HF8NVT*MTY5OTM1MTA4OS40MS4xLjE2OTkzNTQ2MzMuMTAuMC4w';
 
+  /*
+  // this is the like button
+  _like(var post) {
+    final favs = Provider.of<FavoritesProvider>(context, listen: false);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: FavoriteButton(
+        iconColor: Colors.pinkAccent.shade400,
+        iconSize: 35.5,
+        isFavorite: post.isFavorite,
+        valueChanged: (fav) {
+          post.isFavorite = fav;
+          if (fav) {
+            post.canAdd = false;
+          }
+          favs.addFav(post);
+          print(favs.recipes.length);
+        },
+      ),
+    );
+  }
+*/
   @override
   void initState() {
     super.initState();
@@ -95,7 +114,7 @@ class _SearchPagesState extends State<SearchPages> {
                     controller: minutesToCookController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: 'Minutes to Cook',
+                      hintText: 'Minutes to Cook',
                     ),
                   ),
                 ),
@@ -104,7 +123,7 @@ class _SearchPagesState extends State<SearchPages> {
                     child: TextFormField(
                       controller: ingredientPreferenceControllers[i],
                       decoration: InputDecoration(
-                        labelText: 'Ingredient Preference ${i + 1}',
+                        hintText: 'Ingredient Preference ${i + 1}',
                       ),
                     ),
                   ),
@@ -123,7 +142,7 @@ class _SearchPagesState extends State<SearchPages> {
                 final r = recipeList[index];
                 return ListTile(
                   leading: Image.network(
-                    r['image'],
+                    r['image'] ?? ifnull,
                     fit: BoxFit.cover,
                   ),
                   title: Text(r['recipeName']),
@@ -133,7 +152,7 @@ class _SearchPagesState extends State<SearchPages> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RecipeDetails(r.data()),
+                        builder: (context) => recipeDetails(r.data()),
                       ),
                     );
                   },

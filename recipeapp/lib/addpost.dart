@@ -162,6 +162,8 @@ class _PostPageState extends State<PostPage> {
       canAdd: true,
       isFavorite: false,
       location: data['location'],
+      isDisliked: false,
+      isLiked: false,
     );
     generateId();
 

@@ -181,6 +181,9 @@ class _ShowRecipeState extends State<ShowRecipePage> {
             height: 10,
           ),
           Text(post.posts.description, style: const TextStyle(fontSize: 18)),
+          const SizedBox(
+            height: 20,
+          ),
           const Row(
             children: [
               Text('Ingredients',
