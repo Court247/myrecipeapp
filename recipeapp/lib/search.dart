@@ -1,7 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:favorite_button/favorite_button.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'favoriteProvider.dart';
+import 'postprovider.dart';
+import 'post.dart';
 import 'recipeDetails.dart';
 
 class SearchPage extends StatelessWidget {
@@ -27,8 +32,7 @@ class SearchPages extends StatefulWidget {
 
 class _SearchPagesState extends State<SearchPages> {
   final TextEditingController minutesToCookController = TextEditingController();
-  final List<TextEditingController> ingredientPreferenceControllers =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> ingredientPreferenceControllers = List.generate(4, (_) => TextEditingController());
   List recipeList = [];
   String ifnull =
       'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2F1000_F_251955356_FAQH0U1y1TZw3ZcdPGybwUkH90a3VAhb.jpg?alt=media&token=091b00f6-a4a8-4a4a-b66f-60e8978fb471&_gl=1*1dfhnga*_ga*MTM5MTUxODI4My4xNjk4NTE4MjUw*_ga_CW55HF8NVT*MTY5OTM1MTA4OS40MS4xLjE2OTkzNTQ2MzMuMTAuMC4w';
@@ -69,9 +73,10 @@ class _SearchPagesState extends State<SearchPages> {
     print('USER MINUTES $minutesToCook');
     print('USER PREFERENCES $ingredientPreferences');
 
-    var dbF = Provider.of<FirebaseFirestore>(context, listen: false);
+    var dbF = Provider.of<FirebaseFirestore>(context, listen:false);
     dbF.collection('recipes').get().then((querySnapshot) {
-      final suggestions = querySnapshot.docs.where((recipeDoc) {
+      final suggestions = querySnapshot.docs
+          .where((recipeDoc) {
         final recipe = recipeDoc.data();
         // print(recipe);for debugging
         final recipeCookingTime = recipe['minutes'];
@@ -83,11 +88,11 @@ class _SearchPagesState extends State<SearchPages> {
 
         final meetsCookingTime = recipeCookingTime <= minutesToCook;
         //print("Meets cooking time! $meetsCookingTime");
-        final hasMatchingIngredients = ingredientPreferences
-            .any((ingredient) => recipeIngredients.contains(ingredient));
+        final hasMatchingIngredients = ingredientPreferences.every((ingredient) => recipeIngredients.contains(ingredient)); //every ingredient must match
         print("has Matching ingredients $hasMatchingIngredients");
         return meetsCookingTime && hasMatchingIngredients;
-      }).toList();
+      })
+          .toList();
 
       print('Filtered Recipes: $suggestions');
       //updates the list with the filtered recipes
@@ -101,35 +106,59 @@ class _SearchPagesState extends State<SearchPages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: [
           SizedBox(
-            height: 35,
+            height: 116,
             child: Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: minutesToCookController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: 'Minutes to Cook',
-                    ),
+                  flex: 1,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: minutesToCookController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: 'Minutes to Cook',
+                        ),
+                      ),
+                      SizedBox(height: 20), // Adjust as needed for spacing
+                      TextFormField(
+                        controller: ingredientPreferenceControllers[0],
+                        decoration: InputDecoration(
+                          hintText: 'Ingredient Preference 1',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                for (int i = 0; i < 1; i++)
-                  Expanded(
-                    child: TextFormField(
-                      controller: ingredientPreferenceControllers[i],
-                      decoration: InputDecoration(
-                        hintText: 'Ingredient Preference ${i + 1}',
+                Expanded(
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: ingredientPreferenceControllers[1],
+                        decoration: InputDecoration(
+                          hintText: 'Ingredient Preference 2',
+                        ),
                       ),
-                    ),
+                      SizedBox(height: 20), // Adjust as needed for spacing
+                      TextFormField(
+                        controller: ingredientPreferenceControllers[2],
+                        decoration: InputDecoration(
+                          hintText: 'Ingredient Preference 3',
+                        ),
+                      ),
+                    ],
                   ),
+                ),
               ],
             ),
           ),
+          SizedBox(height: 100), // Adjust as needed for spacing
           ElevatedButton(
             onPressed: filterRecipes,
             child: Text('Filter Recipes'),
@@ -146,7 +175,6 @@ class _SearchPagesState extends State<SearchPages> {
                     fit: BoxFit.cover,
                   ),
                   title: Text(r['recipeName']),
-                  //trailing: _like(r),
                   onTap: () {
                     // Navigate to the Recipe Details screen when tapped
                     Navigator.push(
@@ -164,4 +192,4 @@ class _SearchPagesState extends State<SearchPages> {
       ),
     );
   }
-}
+  }

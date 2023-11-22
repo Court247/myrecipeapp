@@ -41,8 +41,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   late List<Post> posts = [];
   late List<Post> recipes = [];
   late List<Post> recipeList = [];
-  int i = 0;
-
+  late var recipeLength;
   late final provider;
   late final db;
   late final auth;
@@ -84,33 +83,36 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
 
   checkForPosts() async {
     var uData = await getUserData(auth.currentUser!.uid);
+    recipeLength = await getCollectionLength();
+    for (int i = 1; i < recipeLength - 1; i++) {
+      db
+          .collection('posts')
+          .doc(i.toString())
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          recipe = documentSnapshot.data();
+          setState(() {
+            data = Post.fromJson(recipe);
+            if (!provider.posts.any(
+                (post) => post.posts.recipeName == data.posts.recipeName)) {
+              provider.addPost(data);
+            }
 
-    await db
-        .collection('posts')
-        .orderBy('timestamp', descending: true)
-        .limit(1)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        recipe = doc.data();
-        data = Post.fromJson(recipe);
-        //this is to check if the recipe is already in the list
-        if (!provider.posts
-            .any((post) => post.posts.recipeName == data.posts.recipeName)) {
-          provider.addPost(data);
+            recipes = provider.posts
+                .where((recipe) =>
+                    recipe.posts.location == uData['location'] ||
+                    recipe.posts.location == null)
+                .toList();
+
+            recipeList = recipes;
+            // addToPostCollection();
+          });
+        } else {
+          print('Document does not exist on the database');
         }
-        recipes = provider.posts
-            .where((recipe) =>
-                recipe.posts.location == uData['location'] ||
-                recipe.posts.location == null)
-            .toList();
-        print(recipes.length);
       });
-    }).whenComplete(() {
-      setState(() {
-        recipeList = recipes;
-      });
-    });
+    }
   }
 
   addToPostCollection() {
@@ -171,17 +173,6 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
         await FirebaseFirestore.instance.collection('posts').get();
     List<DocumentSnapshot> _myDocCount = _myDoc.docs;
     return _myDocCount.length;
-  }
-
-  void someFunction() {
-    getCollectionLength().then((collectionLength) {
-      print('Collection length: $collectionLength');
-    });
-  }
-
-  void someFunction2() async {
-    int collectionLength = await getCollectionLength();
-    print('Collection length: $collectionLength');
   }
 
   @override

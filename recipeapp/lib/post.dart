@@ -10,13 +10,13 @@ class Post {
   int isLiked = 0;
   int isDisliked = 0;
 
-  Post({required this.poster, required this.posts, this.posterID});
+  Post({this.poster, required this.posts, this.posterID});
 
 //this is the method that converts the json data to a recipe object
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       posterID: json['posterID'],
-      poster: json['poster'],
+      //poster: json['poster'],
       posts: Recipe.fromJson(json['posts']),
     );
   }

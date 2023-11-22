@@ -74,7 +74,9 @@ class _ShowRecipeState extends State<ShowRecipePage> {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundImage: NetworkImage(post.poster!.photoURL ?? defaultPhoto),
+          backgroundImage: userData != null
+              ? NetworkImage(userData['profileImage'] ?? defaultPhoto)
+              : NetworkImage(defaultPhoto),
         ),
         const SizedBox(
           width: 10,
@@ -83,7 +85,7 @@ class _ShowRecipeState extends State<ShowRecipePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              post.poster!.displayName!,
+              userData['username'],
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
@@ -142,12 +144,31 @@ class _ShowRecipeState extends State<ShowRecipePage> {
     }
   }
 
+  getFutureBuilder() {
+    return FutureBuilder(
+      future: getUserData(post.posterID),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show a loading indicator while waiting for the Future to complete
+        } else if (snapshot.hasError) {
+          return Text(
+              'Error: ${snapshot.error}'); // Show an error message if the Future completes with an error
+        } else {
+          userData = snapshot.data; // The data returned from getUserData()
+          print(userData);
+          // Build your widget using userData
+          return _postAuthor();
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          _postAuthor(),
+          getFutureBuilder(),
           const SizedBox(
             height: 10,
           ),

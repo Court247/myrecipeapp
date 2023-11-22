@@ -83,7 +83,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               right: 0,
                               child: InkWell(
                                 onTap: () => _updateProfilePicture(context),
-                                child: CircleAvatar(
+                                child: const CircleAvatar(
                                   radius: 30,
                                   //while waiting to display the profile picture
                                   //the circle avatar background color will be red
