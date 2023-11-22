@@ -168,6 +168,7 @@ class _PostPageState extends State<PostPage> {
     setState(() {
       post.addPost(Post(
           //this is the poster ID
+          posterID: authUser!.uid,
           poster: userData,
           posts: recipe));
     });

@@ -103,8 +103,17 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     return uData;
   }
 
+  // addToPostCollection() {
+  //   for (int i = 0; i < recipeList.length + 1; i++) {
+  //     db
+  //         .collection('posts')
+  //         .doc((i + 1).toString())
+  //         .set(recipeList[i].toJson());
+  //   }
+  // }
+
   addToPostCollection() {
-    for (int i = 0; i < recipeList.length; i++) {
+    for (int i = 0; i < recipeList.length + 1; i++) {
       db
           .collection('posts')
           .doc((i + 1).toString())
@@ -112,35 +121,37 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     }
   }
 
+//gets the top 10 recipes from the database and adds it to the list
+  //If the recipe is already in the list it won't add it again
   extraData() async {
     var uData = await getUserData();
     for (int i = 0; i < 10; i++) {
-      db
-          .collection('recipes')
-          .doc(i.toString())
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          recipe = documentSnapshot.data();
-          print(recipe['recipeName']);
-          setState(() {
-            data = Post.fromJson2(auth.currentUser, recipe);
-            if (!provider.posts.any(
-                (post) => post.posts.recipeName == data.posts.recipeName)) {
-              provider.addPost(data);
-            }
+      var docRef = db.collection('recipes').doc(i.toString());
+      DocumentSnapshot documentSnapshot = await docRef.get();
 
-            recipes = provider.posts
-                .where((recipe) =>
-                    recipe.posts.location == uData['location'] ||
-                    recipe.posts.location == null)
-                .toList();
-          });
-        } else {
-          print('Document does not exist on the database');
+      if (documentSnapshot.exists) {
+        recipe = documentSnapshot.data();
+        data = Post.fromJson2(auth.currentUser, recipe);
+        if (!provider.posts
+            .any((post) => post.posts.recipeName == data.posts.recipeName)) {
+          provider.addPost(data);
         }
-      });
+
+        recipes = provider.posts
+            .where((recipe) =>
+                recipe.posts.location == uData['location'] ||
+                recipe.posts.location == null)
+            .toList();
+      } else {
+        print('Document does not exist on the database');
+      }
     }
+
+    setState(() {
+      recipeList = recipes;
+    });
+
+    addToPostCollection();
   }
 
 //this is the like button
@@ -227,7 +238,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                 fit: BoxFit.cover,
               ),
               title: Text(post.posts.recipeName),
-              subtitle: Text(post.poster!.displayName!),
+              subtitle: Text('test'),
               trailing: _like(post),
               onTap: () {
                 Navigator.push(
