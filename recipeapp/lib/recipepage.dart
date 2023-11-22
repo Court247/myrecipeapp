@@ -14,10 +14,8 @@ import 'ratingprovider.dart';
 
 class ShowRecipe extends StatelessWidget {
   Post post;
-  var userData;
   ShowRecipe({
     required this.post,
-    required userData,
     super.key,
   });
 
@@ -47,24 +45,28 @@ class ShowRecipe extends StatelessWidget {
 
 class ShowRecipePage extends StatefulWidget {
   Post post;
-  var userData;
   ShowRecipePage({required this.post, super.key});
 
   @override
-  State<ShowRecipePage> createState() => _ShowRecipeState(post: post, userData: userData);
+  State<ShowRecipePage> createState() => _ShowRecipeState(post: post);
 }
 
 class _ShowRecipeState extends State<ShowRecipePage> {
   Post post;
   var userData;
+  late final db;
   String defaultPhoto =
       'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2Fno-user-image.gif?alt=media&token=25a43660-490e-438d-b1c7-ad6f8c122f7d';
   String ifnull =
       'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2F1000_F_251955356_FAQH0U1y1TZw3ZcdPGybwUkH90a3VAhb.jpg?alt=media&token=091b00f6-a4a8-4a4a-b66f-60e8978fb471&_gl=1*1dfhnga*_ga*MTM5MTUxODI4My4xNjk4NTE4MjUw*_ga_CW55HF8NVT*MTY5OTM1MTA4OS40MS4xLjE2OTkzNTQ2MzMuMTAuMC4w';
 
-  _ShowRecipeState({
-    required this.post, required userData,
-  });
+  _ShowRecipeState({required this.post});
+
+  @override
+  void initState() {
+    super.initState();
+    db = Provider.of<FirebaseFirestore>(context, listen: false);
+  }
 
   //This is the author of the recipe
   _postAuthor() {
@@ -119,6 +121,25 @@ class _ShowRecipeState extends State<ShowRecipePage> {
         },
       ),
     );
+  }
+
+  getData(String? postID) async {
+    var data = await getUserData(postID);
+    setState(() {
+      userData = data;
+    });
+  }
+
+  //gets the user data from the database
+  getUserData(String? postID) async {
+    try {
+      var querySnapshot = await db.collection('users').doc(postID).get();
+      var uData = querySnapshot.data()!;
+      //print(uData);
+      return uData;
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override

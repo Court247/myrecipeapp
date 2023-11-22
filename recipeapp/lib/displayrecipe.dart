@@ -41,6 +41,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   late List<Post> posts = [];
   late List<Post> recipes = [];
   late List<Post> recipeList = [];
+  int i = 0;
 
   late final provider;
   late final db;
@@ -81,8 +82,10 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     }
   }
 
-  checkForPosts() {
-    db
+  checkForPosts() async {
+    var uData = await getUserData(auth.currentUser!.uid);
+
+    await db
         .collection('posts')
         .orderBy('timestamp', descending: true)
         .limit(1)
@@ -90,22 +93,25 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         recipe = doc.data();
-        setState(() {
-          data = Post.fromJson(recipe);
-          //this is to check if the recipe is already in the list
-          if (!provider.posts
-              .any((post) => post.posts.recipeName == data.posts.recipeName)) {
-            provider.addPost(data);
-          }
-
-          recipes = provider.posts;
-
-          recipeList = recipes;
-        });
+        data = Post.fromJson(recipe);
+        //this is to check if the recipe is already in the list
+        if (!provider.posts
+            .any((post) => post.posts.recipeName == data.posts.recipeName)) {
+          provider.addPost(data);
+        }
+        recipes = provider.posts
+            .where((recipe) =>
+                recipe.posts.location == uData['location'] ||
+                recipe.posts.location == null)
+            .toList();
+        print(recipes.length);
+      });
+    }).whenComplete(() {
+      setState(() {
+        recipeList = recipes;
       });
     });
   }
-
 
   addToPostCollection() {
     for (int i = 0; i < recipeList.length; i++) {
@@ -160,9 +166,22 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     setState(() => recipeList = suggestions);
   }
 
-  Future<DocumentSnapshot> fetchUserData(var userID) async {
-    var userDoc = await db.collection('users').doc(userID).get();
-    return userDoc;
+  Future<int> getCollectionLength() async {
+    QuerySnapshot _myDoc =
+        await FirebaseFirestore.instance.collection('posts').get();
+    List<DocumentSnapshot> _myDocCount = _myDoc.docs;
+    return _myDocCount.length;
+  }
+
+  void someFunction() {
+    getCollectionLength().then((collectionLength) {
+      print('Collection length: $collectionLength');
+    });
+  }
+
+  void someFunction2() async {
+    int collectionLength = await getCollectionLength();
+    print('Collection length: $collectionLength');
   }
 
   @override
@@ -195,26 +214,16 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
         ),
         Expanded(
             child: ListView.builder(
-          itemCount: recipeList.length,
-          itemBuilder: (BuildContext context, int index) {
-            var post = recipeList[index];
-            return FutureBuilder<DocumentSnapshot>(
-              future: fetchUserData(post.posterID),
-              builder: (BuildContext context,
-                  AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  postData = snapshot.data!.data();
+                itemCount: recipeList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var post = recipeList[index];
                   return ListTile(
                     leading: Image.network(
                       post.posts.image ?? ifnull,
                       fit: BoxFit.cover,
                     ),
                     title: Text(post.posts.recipeName),
-                    subtitle: Text(postData['username']),
+                    subtitle: Text(post.posts.description),
                     trailing: _like(post),
                     onTap: () {
                       Navigator.push(
@@ -222,17 +231,12 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                         MaterialPageRoute(
                           builder: (context) => ShowRecipe(
                             post: post,
-                            userData: postData,
                           ),
                         ),
                       );
                     },
                   );
-                }
-              },
-            );
-          },
-        )),
+                })),
       ]),
     );
   }
