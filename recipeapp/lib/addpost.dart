@@ -104,7 +104,6 @@ class _PostPageState extends State<PostPage> {
   }
 
   uploadFile() async {
-    final post = Provider.of<PostProvider>(context, listen: false);
     final storage = Provider.of<FirebaseStorage>(context, listen: false);
     final path = 'images/${_recipeName.currentState!.value!}.png';
     File? file = imageFile != null ? File(imageFile!.path!) : null;
@@ -169,29 +168,33 @@ class _PostPageState extends State<PostPage> {
       steps: _steps.currentState!.value!.split(',').toList(),
       canAdd: true,
       isFavorite: false,
-      location: data['location'],
-      isDisliked: false,
-      isLiked: false,
     );
     generateId();
 
     setState(() {
       post.addPost(Post(
-          //this is the poster ID
-          posterID: authUser!.uid,
-          posts: recipe));
+        //this is the poster ID
+        posterID: authUser!.uid,
+        posts: recipe,
+        location: data['location'],
+      ));
     });
 
     db.collection(r).doc(_postId.toString()).set(recipe.toJson());
-    db
-        .collection('posts')
-        .doc((recipeLength + 1).toString())
-        .set({'posts': recipe.toJson(), 'posterID': authUser!.uid});
+    db.collection('posts').doc((recipeLength + 1).toString()).set({
+      'posts': recipe.toJson(),
+      'posterID': authUser!.uid,
+      'location': data['location'],
+      'isLiked': false,
+      'isDisliked': false,
+      'likedCount': 0,
+      'dislikedCount': 0,
+    });
   }
 
   showSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Post added successfully'),
+      content: Text('Post Added!'),
       backgroundColor: Colors.green,
     ));
   }

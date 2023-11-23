@@ -42,6 +42,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   late List<Post> posts = [];
   late List<Post> recipes = [];
   late List<Post> recipeList = [];
+
   late var recipeLength;
   late final provider;
   late final db;
@@ -103,8 +104,8 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
 
             recipes = provider.posts
                 .where((recipe) =>
-                    recipe.posts.location == uData['location'] ||
-                    recipe.posts.location == null)
+                    recipe.location == uData['location'] ||
+                    recipe.location == null)
                 .toList();
 
             recipeList = recipes;

@@ -11,47 +11,41 @@ class Recipe {
   String? image;
   bool? isFavorite = false;
   bool? canAdd = true;
-  bool? isLiked = false;
-  bool? isDisliked = false;
-  String? location;
-  Recipe(
-      {required this.recipeName,
-      required this.recipeId,
-      required this.minutes,
-      required this.nutrition,
-      required this.ingredients,
-      required this.steps,
-      required this.tags,
-      required this.description,
-      this.image,
-      this.isFavorite,
-      this.canAdd,
-      this.location,
-      this.isLiked,
-      this.isDisliked});
+  Recipe({
+    required this.recipeName,
+    required this.recipeId,
+    required this.minutes,
+    required this.nutrition,
+    required this.ingredients,
+    required this.steps,
+    required this.tags,
+    required this.description,
+    this.image,
+    this.isFavorite,
+    this.canAdd,
+  });
 
   //this is the method that converts the json data to a recipe object
   factory Recipe.fromJson(Map<String, dynamic> json) {
     return Recipe(
-        recipeName: json['recipeName'],
-        recipeId: json['recipeID'],
-        minutes: json['minutes'],
-        nutrition: (json['nutrition'] is List)
-            ? json['nutrition']
-                .map((e) => double.tryParse(e.toString()) ?? 0.0)
-                .toList()
-                .cast<double>()
-            : [],
-        ingredients: json['ingredients'] is List
-            ? json['ingredients'].cast<String>()
-            : [],
-        steps: json['steps'] is List ? json['steps'].cast<String>() : [],
-        tags: json['tags'] is List ? json['tags'].cast<String>() : [],
-        description: json['description'],
-        image: json['image'],
-        isFavorite: json['isFavorite'],
-        canAdd: json['canAdd'],
-        location: json['location']);
+      recipeName: json['recipeName'],
+      recipeId: json['recipeID'],
+      minutes: json['minutes'],
+      nutrition: (json['nutrition'] is List)
+          ? json['nutrition']
+              .map((e) => double.tryParse(e.toString()) ?? 0.0)
+              .toList()
+              .cast<double>()
+          : [],
+      ingredients:
+          json['ingredients'] is List ? json['ingredients'].cast<String>() : [],
+      steps: json['steps'] is List ? json['steps'].cast<String>() : [],
+      tags: json['tags'] is List ? json['tags'].cast<String>() : [],
+      description: json['description'],
+      image: json['image'],
+      isFavorite: json['isFavorite'],
+      canAdd: json['canAdd'],
+    );
   }
 
   //this is the method that converts the recipe object to json data
