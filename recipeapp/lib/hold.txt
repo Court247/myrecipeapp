@@ -157,3 +157,47 @@ List<Map<String, dynamic>> jsonList = provider.recipes
       });
     }
   }
+
+
+FutureBuilder(
+      future: db.collection('posts').get(),
+      builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          //red loading indicator while data gets displayed
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          for (int i = 1; i < recipeLength; i++) {
+            db
+                .collection('posts')
+                .doc(i.toString())
+                .get()
+                .then((DocumentSnapshot documentSnapshot) {
+              if (documentSnapshot.exists) {
+                recipe = documentSnapshot.data();
+                setState(() {
+                  //data = Post.fromJson(recipe);
+                  data = Post.fromJson2(recipe['posterID'], recipe['posts']);
+                  if (!provider.posts.any((post) =>
+                      post.posts.recipeName == data.posts.recipeName)) {
+                    provider.addPost(data);
+                  }
+
+                  recipes = provider.posts
+                      .where((recipe) =>
+                          recipe.posts.location == uData['location'] ||
+                          recipe.posts.location == null)
+                      .toList();
+
+                  recipeList = recipes;
+                });
+              } else {
+                print('Document does not exist on the database');
+              }
+            });
+          }
+          return Column();
+        }
+      },
+    );

@@ -68,6 +68,7 @@ class _PostPageState extends State<PostPage> {
   late final db;
   var userData;
   var data;
+  late int recipeLength;
   PlatformFile? imageFile;
   UploadTask? uploadTask;
 
@@ -135,8 +136,15 @@ class _PostPageState extends State<PostPage> {
     return randomNumber;
   }
 
+  Future<int> getCollectionLength() async {
+    QuerySnapshot _myDoc = await db.collection('posts').get();
+    List<DocumentSnapshot> _myDocCount = _myDoc.docs;
+    return _myDocCount.length;
+  }
+
   //This is to submit the post to the database and add it to the list of posts
-  void _submitPost(var userData) async {
+  void _submitPost() async {
+    recipeLength = await getCollectionLength();
     var data;
     final post = Provider.of<PostProvider>(context, listen: false);
 
@@ -170,20 +178,20 @@ class _PostPageState extends State<PostPage> {
     setState(() {
       post.addPost(Post(
           //this is the poster ID
-          poster: userData,
+          posterID: authUser!.uid,
           posts: recipe));
     });
 
-    List<Map<String, dynamic>> jsonList =
-        post.posts.map((item) => item.posts.toJson()).toList();
-
     db.collection(r).doc(_postId.toString()).set(recipe.toJson());
-    db.collection('posts').doc(authUser!.uid).update({'posts': jsonList});
+    db
+        .collection('posts')
+        .doc((recipeLength + 1).toString())
+        .set({'posts': recipe.toJson(), 'posterID': authUser!.uid});
   }
 
   showSnackBar() {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Login Successful!'),
+      content: Text('Post added successfully'),
       backgroundColor: Colors.green,
     ));
   }
@@ -331,7 +339,7 @@ class _PostPageState extends State<PostPage> {
                 });
                 print(authUser!);
                 //THis is to submit the post with the user displayname
-                _submitPost(authUser!);
+                _submitPost();
                 showSnackBar();
               },
               child: const Text('Submit'),

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:favorite_button/favorite_button.dart';
 
@@ -84,16 +85,17 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   checkForPosts() async {
     var uData = await getUserData(auth.currentUser!.uid);
     recipeLength = await getCollectionLength();
-    for (int i = 1; i < recipeLength - 1; i++) {
+    for (int i = 0; i < recipeLength; i++) {
       db
           .collection('posts')
-          .doc(i.toString())
+          .doc((i + 1).toString())
           .get()
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
           recipe = documentSnapshot.data();
           setState(() {
-            data = Post.fromJson(recipe);
+            //data = Post.fromJson(recipe);
+            data = Post.fromJson2(recipe['posterID'], recipe['posts']);
             if (!provider.posts.any(
                 (post) => post.posts.recipeName == data.posts.recipeName)) {
               provider.addPost(data);
@@ -106,21 +108,11 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                 .toList();
 
             recipeList = recipes;
-            // addToPostCollection();
           });
         } else {
           print('Document does not exist on the database');
         }
       });
-    }
-  }
-
-  addToPostCollection() {
-    for (int i = 0; i < recipeList.length; i++) {
-      db
-          .collection('posts')
-          .doc((i + 1).toString())
-          .set(recipeList[i].toJson());
     }
   }
 
@@ -169,8 +161,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
   }
 
   Future<int> getCollectionLength() async {
-    QuerySnapshot _myDoc =
-        await FirebaseFirestore.instance.collection('posts').get();
+    QuerySnapshot _myDoc = await db.collection('posts').get();
     List<DocumentSnapshot> _myDocCount = _myDoc.docs;
     return _myDocCount.length;
   }

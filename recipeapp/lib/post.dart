@@ -21,10 +21,9 @@ class Post {
     );
   }
 
-  factory Post.fromJson2(User? jsonPoster, Map<String, dynamic> jsonPosts) {
+  factory Post.fromJson2(String jsonPoster, Map<String, dynamic> jsonPosts) {
     return Post(
-      posterID: jsonPoster!.uid,
-      poster: jsonPoster,
+      posterID: jsonPoster,
       posts: Recipe.fromJson(jsonPosts),
     );
   }

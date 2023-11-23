@@ -125,40 +125,29 @@ class _ShowRecipeState extends State<ShowRecipePage> {
     );
   }
 
-  getData(String? postID) async {
-    var data = await getUserData(postID);
-    setState(() {
-      userData = data;
-    });
-  }
-
-  //gets the user data from the database
-  getUserData(String? postID) async {
-    try {
-      var querySnapshot = await db.collection('users').doc(postID).get();
-      var uData = querySnapshot.data()!;
-      //print(uData);
-      return uData;
-    } catch (e) {
-      print(e);
-    }
-  }
-
   getFutureBuilder() {
-    return FutureBuilder(
-      future: getUserData(post.posterID),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show a loading indicator while waiting for the Future to complete
-        } else if (snapshot.hasError) {
-          return Text(
-              'Error: ${snapshot.error}'); // Show an error message if the Future completes with an error
-        } else {
-          userData = snapshot.data; // The data returned from getUserData()
-          print(userData);
-          // Build your widget using userData
+    return FutureBuilder<DocumentSnapshot>(
+      future: db.collection('users').doc(post.posterID).get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        print('posterID: ${post.posterID}'); // Print the posterID
+
+        if (snapshot.hasError) {
+          return const Text("Something went wrong");
+        }
+
+        if (snapshot.hasData && !snapshot.data!.exists) {
+          return const Text("Document does not exist");
+        }
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          userData = snapshot.data!.data() as Map<String, dynamic>;
+          print('User data: $userData'); // Print the user data
+
           return _postAuthor();
         }
+
+        return const CircularProgressIndicator();
       },
     );
   }
