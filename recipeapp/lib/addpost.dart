@@ -177,6 +177,8 @@ class _PostPageState extends State<PostPage> {
         posterID: authUser!.uid,
         posts: recipe,
         location: data['location'],
+        likedCount: 0,
+        dislikedCount: 0,
       ));
     });
 
@@ -185,8 +187,6 @@ class _PostPageState extends State<PostPage> {
       'posts': recipe.toJson(),
       'posterID': authUser!.uid,
       'location': data['location'],
-      'isLiked': false,
-      'isDisliked': false,
       'likedCount': 0,
       'dislikedCount': 0,
     });

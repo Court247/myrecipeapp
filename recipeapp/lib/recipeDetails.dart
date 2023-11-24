@@ -39,7 +39,7 @@ class recipeDetails extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     '',
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold,
                       fontFamily: 'Lato',),
@@ -58,7 +58,7 @@ class recipeDetails extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Ingredients:', style: GoogleFonts.lato(fontSize: 30, fontWeight: FontWeight.bold,)),
-                      Container(
+                      SizedBox(
                           width: 360,
                           child:Divider(
                         thickness: 4,
@@ -66,7 +66,7 @@ class recipeDetails extends StatelessWidget {
                             height: 5,
                       ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       for (var ingredient in ingredients) Text(ingredient,style: GoogleFonts.lato()),
                     ],
                   ),
@@ -86,7 +86,7 @@ class recipeDetails extends StatelessWidget {
                           height: 5,
                         ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                       for (var i = 0; i < steps.length; i++)
                         Text('${i + 1}. ${steps[i]}',style: GoogleFonts.lato(),),
                       ],

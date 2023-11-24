@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:favorite_button/favorite_button.dart';
 
@@ -87,29 +86,30 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
     var uData = await getUserData(auth.currentUser!.uid);
     recipeLength = await getCollectionLength();
     for (int i = 0; i < recipeLength; i++) {
-      db
+      await db
           .collection('posts')
           .doc((i + 1).toString())
           .get()
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
           recipe = documentSnapshot.data();
-          setState(() {
-            //data = Post.fromJson(recipe);
-            data = Post.fromJson2(recipe['posterID'], recipe['posts']);
-            if (!provider.posts.any(
-                (post) => post.posts.recipeName == data.posts.recipeName)) {
-              provider.addPost(data);
-            }
+          if (mounted) {
+            setState(() {
+              data = Post.fromJson(recipe);
+              if (!provider.posts.any((post) =>
+                  post.posts.recipeName.toLowerCase() ==
+                  data.posts.recipeName.toLowerCase())) {
+                provider.addPost(data);
+              }
 
-            recipes = provider.posts
-                .where((recipe) =>
-                    recipe.location == uData['location'] ||
-                    recipe.location == null)
-                .toList();
-
-            recipeList = recipes;
-          });
+              recipes = provider.posts
+                  .where((recipePost) =>
+                      recipePost.location == uData['location'] ||
+                      recipePost.location == null)
+                  .toList();
+              recipeList = recipes;
+            });
+          }
         } else {
           print('Document does not exist on the database');
         }
@@ -206,7 +206,10 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                       fit: BoxFit.cover,
                     ),
                     title: Text(post.posts.recipeName),
-                    subtitle: Text(post.posts.description),
+                    subtitle: Text(
+                      post.posts.description,
+                      maxLines: 2,
+                    ),
                     trailing: _like(post),
                     onTap: () {
                       Navigator.push(
@@ -214,6 +217,7 @@ class _DisplayRecipeState extends State<DisplayRecipePage> {
                         MaterialPageRoute(
                           builder: (context) => ShowRecipe(
                             post: post,
+                            index: index,
                           ),
                         ),
                       );

@@ -2,23 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:favorite_button/favorite_button.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:like_button/like_button.dart';
 
 import 'package:provider/provider.dart';
 import 'favoriteProvider.dart';
 import 'post.dart';
-import 'ratingprovider.dart';
 
 //this is the page where the user can view the recipes as a timeline
 //might change it to a list time so you can just click and it'll show who uploaded it and the recipe
 
 class ShowRecipe extends StatelessWidget {
   Post post;
-  ShowRecipe({
-    required this.post,
-    super.key,
-  });
+  int index;
+  ShowRecipe({required this.post, super.key, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +34,7 @@ class ShowRecipe extends StatelessWidget {
         ),
         body: ShowRecipePage(
           post: post,
+          index: index,
         ),
       ),
     );
@@ -46,14 +43,17 @@ class ShowRecipe extends StatelessWidget {
 
 class ShowRecipePage extends StatefulWidget {
   Post post;
-  ShowRecipePage({required this.post, super.key});
+  int index;
+  ShowRecipePage({required this.post, super.key, required this.index});
 
   @override
-  State<ShowRecipePage> createState() => _ShowRecipeState(post: post);
+  State<ShowRecipePage> createState() =>
+      _ShowRecipeState(post: post, index: index);
 }
 
 class _ShowRecipeState extends State<ShowRecipePage> {
   Post post;
+  int index;
   var userData;
   late final db;
   String defaultPhoto =
@@ -61,7 +61,7 @@ class _ShowRecipeState extends State<ShowRecipePage> {
   String ifnull =
       'https://firebasestorage.googleapis.com/v0/b/recipeapp-3ab43.appspot.com/o/images%2F1000_F_251955356_FAQH0U1y1TZw3ZcdPGybwUkH90a3VAhb.jpg?alt=media&token=091b00f6-a4a8-4a4a-b66f-60e8978fb471&_gl=1*1dfhnga*_ga*MTM5MTUxODI4My4xNjk4NTE4MjUw*_ga_CW55HF8NVT*MTY5OTM1MTA4OS40MS4xLjE2OTkzNTQ2MzMuMTAuMC4w';
 
-  _ShowRecipeState({required this.post});
+  _ShowRecipeState({required this.post, required this.index});
 
   @override
   void initState() {
@@ -153,6 +153,14 @@ class _ShowRecipeState extends State<ShowRecipePage> {
     );
   }
 
+  update() async {
+    print(index);
+    await db.collection('posts').doc((index + 1).toString()).update({
+      'likedCount': post.likedCount,
+      'dislikedCount': post.dislikedCount,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -206,6 +214,7 @@ class _ShowRecipeState extends State<ShowRecipePage> {
                       }
                     }
                   });
+                  update();
                   return Future.value(post.isLiked);
                 },
               ),
@@ -249,6 +258,8 @@ class _ShowRecipeState extends State<ShowRecipePage> {
                       }
                     }
                   });
+                  update();
+
                   return Future.value(post.isDisliked);
                 },
               ),

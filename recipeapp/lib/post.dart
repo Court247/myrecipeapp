@@ -6,9 +6,8 @@ class Post {
   String? posterID;
   Recipe posts;
   String? location;
-
-  bool isLiked = false;
-  bool isDisliked = false;
+  bool isLiked;
+  bool isDisliked;
   int likedCount = 0;
   int dislikedCount = 0;
 
@@ -16,8 +15,8 @@ class Post {
       {required this.posts,
       this.posterID,
       this.location,
-      this.isLiked = false,
       this.isDisliked = false,
+      this.isLiked = false,
       this.likedCount = 0,
       this.dislikedCount = 0});
 
@@ -26,13 +25,9 @@ class Post {
     return Post(
       posterID: json['posterID'],
       posts: Recipe.fromJson(json['posts']),
-    );
-  }
-
-  factory Post.fromJson2(String jsonPoster, Map<String, dynamic> jsonPosts) {
-    return Post(
-      posterID: jsonPoster,
-      posts: Recipe.fromJson(jsonPosts),
+      location: json['location'],
+      likedCount: json['likedCount'],
+      dislikedCount: json['dislikedCount'],
     );
   }
 
@@ -40,6 +35,9 @@ class Post {
     return {
       'posterID': posterID,
       'posts': posts.toJson(),
+      'location': location,
+      'likedCount': likedCount,
+      'dislikedCount': dislikedCount,
     };
   }
 }
