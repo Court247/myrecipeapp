@@ -225,10 +225,7 @@ class _SearchPagesState extends State<SearchPages> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ShowRecipesDetails(
-                          recipe: r.data(),
-                          index: index,
-                        ),
+                        builder: (context) => RecipeDetails(r.data()),
                       ),
                     );
                   },
