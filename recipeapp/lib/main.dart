@@ -57,7 +57,7 @@ class Login extends StatelessWidget {
         ),
         home: const LoginPage(),
       ),
-    );
+    ); 
   }
 }
 
